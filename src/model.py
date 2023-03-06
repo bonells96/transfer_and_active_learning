@@ -27,8 +27,30 @@ class LinearNet(nn.Module):
         return pred 
 
 
-def train_one_epoch(model, train_loader, optimizer):
+class FCSTNet(nn.Module):
+    def __init__(self, input_size):
+        super(FCSTNet, self).__init__()
 
+        self.embeddings = SentenceTransformer('all-MiniLM-L6-v2')
+        self.fc = nn.Linear(input_size, 2)
+
+    def forward(self, x):
+        
+        embeddings = self.embeddings.encode(x, convert_to_tensor=True)
+        out = torch.sigmoid(self.fc(embeddings))
+
+        return out
+    
+    def predict(self, x):
+        
+        out = self.forward(x)
+        _,pred = torch.max(out, 1)
+        return pred 
+
+
+
+def train_one_epoch(model, train_loader, optimizer):
+    "trains one iteration of the Neural Network"
     running_loss = 0
     for i, (inputs, labels) in enumerate(train_loader):
         optimizer.zero_grad()
