@@ -58,13 +58,64 @@ To conclude, for the Hate data we see that the setfit model, is a great option i
 
 In this project, we aim to develop an effective strategy for selecting the best examples to label in order to improve the performance of machine learning models that have been trained on a limited amount of data. Specifically, we will be working with models that have been trained on just 100 labeled examples, and we have the ability to manually label an additional 100 examples to improve the model's accuracy. Given the limited amount of labeled data, we recognize the importance of selecting the most informative examples to label in order to make the most of our labeling efforts. We  explored different active learning approaches to select the best text for labelling.
 
+### Experiment
+
+We want to compare different active learning strategies.
+
+For each dataset we train a model in 100 samples (50 samples of each class). Our model is a combination of a Sentence Transformer for the embeddings connected to a FC Neural Network:
+The specifities are in this [folder](src/model.py)
+
+````
+class LinearNet(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(LinearNet, self).__init__()
+
+        self.embeddings = SentenceTransformer('all-MiniLM-L6-v2')
+        self.hidden = nn.Linear(input_size, hidden_size)
+        self.fc = nn.Linear(hidden_size, 2)
+
+    def forward(self, x):
+        
+        embeddings = self.embeddings.encode(x, convert_to_tensor=True)
+        out = F.relu(self.hidden(embeddings))
+        out = torch.sigmoid(self.fc(out))
+
+        return out
+    
+    def predict(self, x):
+        
+        out = self.forward(x)
+        _,pred = torch.max(out, 1)
+        return pred 
+
+````
+
+After training it in 100 samples we save the model.
+
+The idea now, is to ammeliorate the model's performance by selecting the best examples to label knowing that we only have ressources to label 100 more.
+
+We will take 4 different strategies:
+
+1. Select 100 random texts (no strategy), we will repeat this experiment 5 times to increase the robustness
+2. Select the 100 texts higher entropy
+3. Select the 100 texts with lower cosine similarity to the first training set
+4. Combine strategies from 2 and 3
+
+This [notebook](/active_learning.ipynb) shows the use case for the hate dataset.
 
 ### Hate Data
 
-**Initial Step**: 
+For the Hate dataset we ended up with the following results:
 
-The model at the beggining has been trained in 100 examples. After the training the model has an accuracy of 65.89% on the validation set and an f1 of 65.47%.
+|Model stage|Accuracy|F1|Precision|Recall|
+|:---:|:---:|:---:|:---:|:---:|
+|after first training|66.67|64.62|59.31|70.98|
+|retrain without active learning|66.78 + 0.10|63.68 + 0.59|                                         59.96 + 0.39|67.93 + 1.84|
+|retrain entropy|66.89|65.19|59.36|72.28|
+|retrain similarity|66.56|64.46|59.22|70.73|
+|retrain similarity ane entropy|66.89|63.92|60.00|68.39|
 
+The strategy with best results was retraining it by taking the examples with higher entropy. We see that the results are better taking only the entropy tat combining entropy and cosine similarity. 
 
 
 ## Requirements
