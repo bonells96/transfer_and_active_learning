@@ -1,5 +1,11 @@
 # Transfer Learning and Active Lerning
 
+## Datasets 
+
+
+* **Hate dataset** from [TweetEval](https://arxiv.org/pdf/2010.12421.pdf): Dataset labelled for hate speech detection. A tweet is classified as hate if it is hateful against any of two target communities: immigrants and women. Extracted from Se- mEval2019 Hateval challenge. 
+
+
 
 ## Transfer Learning
 
@@ -8,6 +14,7 @@ In this project we compare different few shot learning models:
 * setfit model
 * setfit model only training the classification layer
 * setfit model without contrastive learning
+* distilbert
 
 ### Training Setfit Model
 
@@ -27,28 +34,31 @@ then an example for running it through the CLI is (for each use case change the 
 python src/run_train_setfit.py --PATH_DATA "users/transfer_and_active_learning/data" --name_data "train_hate" --only_head False --save_model "setfit_hate"
 ````
 
+The distilbert model has been trained in this [COLAB](https://colab.research.google.com/drive/1AO23WnNXt1WiUrLBb15Wfq4m-9zSdW9v#scrollTo=i_eOGmq1eoJZ) to speed computations. 
+
 ### Experiment
 
 We want to compare different few-shot-learning methods and their performance depending on the number of examples given for training. For each dataset we take different subsamples of different lengths.
 
 
 For this case we choose to take subsamples of length 8, 16, 32, 64 and 100. All of the subsamples are balanced (same number of examples for each class).
-To increase the robustness of our experiment for each length we take 5 different samples, like this the result of the experiment will be less dependent on the samples chosen.
+To increase the robustness of our experiment for each length we take 5 different samples to increase the robustness of the experiment!
+Then for each length size n we will initialize 5 models for each architecture train on 5 different subsamples of size n of the training set.
 
-For example, we take 5 different subsamples with 8 examples (4 examples of each class).
-
-Then we train the model on each subsample and we forecast the validation data and save the predictions.
+Finally we train the model on each subsample and we forecast the validation data and save the predictions.
 
 ### Hate Dataset
 
 For the Hate dataset we have the following results for Accuracy and F1:
-![](img/accuracies_tl_hate.png)
+![](img/ouf1s_tl_hate_v2.png) 
 
 The setfit model is the one with the best performance. It has the best metrics and the smaller variances in the results. We see that with only 32 examples of each class the model is only 7 pts below of the state of the art in terms of Accuracy. 
 
 The setfit_head (only head trained) model performances are clearly below the ones from the setfit model. We can see also that the results have much more variance they vary a lot depending on the samples chosen. 
 
-![](img/f1s_tl_hate.png) 
+Clearly the DistilBERT model is the model with the worse performance.
+
+![](img/accs_tl_v1.png)
 
 For the F1 the results are similar than before, but the curves gets closer. For the model without contrastive learning we observe a huge variance for few examples. This is because depending on the samples chosen the model almost only outputs one of the classes and then gets a very low F1 while having an accuracy close to 50%.
 
