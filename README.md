@@ -1,5 +1,9 @@
 # Transfer Learning and Active Lerning
 
+
+This repository is focused on two important techniques in machine learning: active learning and transfer learning. Active learning is a powerful approach to machine learning where the model actively selects which data points it wants to label to improve its performance. Transfer learning, on the other hand, is a technique where knowledge gained from one domain is transferred to another domain to improve learning efficiency and accuracy.
+
+
 ## Datasets 
 
 
