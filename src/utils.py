@@ -3,6 +3,7 @@ import numpy as np
 from datasets import Dataset
 
 def load_and_subsample(name_file:str, target_column:str, n:int, seed:int=13) -> pd.DataFrame:
+    "loads and subsamples the data then returns a Dataset object"
     data = pd.read_csv(f'{name_file}.csv')
     sub_data = create_balance_sample(data, target_column, n, seed)
     return Dataset.from_pandas(sub_data)
